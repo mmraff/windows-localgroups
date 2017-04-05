@@ -1,0 +1,43 @@
+{
+  "name": "windows-localgroups",
+  "version": "0.0.0",
+  "description": "Native Node module for Windows LocalGroup API",
+  "license": "MIT",
+  "author": {
+    "name": "Matthew Rafferty",
+    "email": "mmraff@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mmraff/windows-localgroups.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mmraff/windows-localgroups/issues"
+  },
+  "main": "index.js",
+  "gypfile": true,
+  "dependencies": {
+    "bindings": "~1.2.1",
+    "nan": "2.4.x"
+  },
+  "devDependencies": {
+    "chai": "^3.4",
+    "mocha": ">=2.5"
+  },
+  "scripts": {
+    "test": "mocha",
+    "install": "node-gyp rebuild"
+  },
+  "keywords": [
+    "windows",
+    "group",
+    "localgroup",
+    "local group",
+    "win32",
+    "native",
+    "NetLocalGroupEnum",
+    "NetLocalGroupGetInfo",
+    "NetLocalGroupGetMembers"
+  ],
+  "homepage": "https://github.com/mmraff/windows-localgroups#readme"
+}
