@@ -49,7 +49,7 @@ passed back.
 on the local system; otherwise an `Error` is thrown.
 - `groupName` {String} Name of local group.
 - Return: {Array} array of objects, each with three properties:  
-  * **sid** {String} The unique security identifier (SID) of the member **TODO: MSDN link**
+  * **sid** {String} The unique [security identifier (SID)](https://msdn.microsoft.com/en-us/library/windows/desktop/ms721625%28v=vs.85%29.aspx#_security_security_identifier_gly) of the member
   * **accountType** {String} one of the following:  
     `"user"`, `"group"`, `"well-known group"`, `"deleted"`, `"unknown"`
   * **domainAndName** {String} The domain-qualified name of the member  
