@@ -1,6 +1,6 @@
 {
   "name": "windows-localgroups",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Native addon for Node.js to query Windows LocalGroup API",
   "license": "MIT",
   "author": {
