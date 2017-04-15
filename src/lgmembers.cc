@@ -83,7 +83,6 @@ LGMemberList* getMemberList(
       {
         unsigned long err = GetLastError();
         pSnag = new APISnag(err);
-        //fprintf(stderr, "ConvertSidToStringSid() failed: %d\n", err);
         break;
       }
 
@@ -108,7 +107,6 @@ LGMemberList* getMemberList(
       if (LocalFree(pSidW) != NULL)
       {
         pSnag = new SystemSnag(GetLastError());
-        //fprintf(stderr, "LocalFree() had a problem...\n");
         break;
       }
     }
@@ -121,8 +119,6 @@ LGMemberList* getMemberList(
       throw pSnag;
     }
   } while (status == ERROR_MORE_DATA);
-
-  //fprintf(stderr, "Exited normally from do-loop\n");  // DEBUG ONLY
 
   return pList;
 }

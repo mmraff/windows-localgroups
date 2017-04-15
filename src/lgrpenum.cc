@@ -76,16 +76,12 @@ LocalGroupList* getLocalGroupList(const wchar_t* pServerNameW)
 
     for (i = 0; i < entriesReadArg; i++, pInEntry++)
     {
-      // MSDN doc does not say that lgrpi1_name can be NULL,
-      // so we assume it can't.
       pList->AddGroup(pInEntry->lgrpi1_name, pInEntry->lgrpi1_comment);
     }
 
     NetApiBufferFree(pBuffer);
 
   } while (status == ERROR_MORE_DATA);
-
-  //fprintf(stderr, "Exited normally from do-loop\n");  // DEBUG ONLY
 
   return pList;
 }
