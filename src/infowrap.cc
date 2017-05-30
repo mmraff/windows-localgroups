@@ -73,7 +73,7 @@ class GrpInfoWorker : public Nan::AsyncWorker {
     {
       const unsigned argc = 2;
       Local<Value> argv[argc] = {
-        Nan::Undefined(),
+        Nan::Null(),
         _pComment == NULL ? Nan::Null()
                           : Nan::New<String>(_pComment).ToLocalChecked()
       };

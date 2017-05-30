@@ -99,7 +99,7 @@ class MemberInfoWorker : public Nan::AsyncWorker {
     {
       const unsigned argc = 2;
       Local<Value> argv[argc] = {
-        Nan::Undefined(), Nan::New(transformMemberData(_pList))
+        Nan::Null(), transformMemberData(_pList)
       };
       delete _pList; _pList = NULL;
       callback->Call(argc, argv);

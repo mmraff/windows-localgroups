@@ -81,9 +81,6 @@ class GrpEnumWorker : public Nan::AsyncWorker {
         Nan::ErrnoException(_pSnag->code(), NULL, "Unknown error") :
         Nan::Error(_pSnag->message());
       Local<Value> argv[argc] = { exc };
-      // FAILED EXPERIMENT (tried arrow too):
-      //argv[0].Set(Nan::New<String>("code").ToLocalChecked(),
-      //             Nan::New<String>("EIEIO").ToLocalChecked());
       callback->Call(argc, argv);
     }
 
@@ -91,7 +88,7 @@ class GrpEnumWorker : public Nan::AsyncWorker {
     {
       const unsigned argc = 2;
       Local<Value> argv[argc] = {
-        Nan::Undefined(), Nan::New(transformLGData(_pList))
+        Nan::Null(), transformLGData(_pList)
       };
       delete _pList; _pList = NULL;
       callback->Call(argc, argv);
