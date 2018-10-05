@@ -25,14 +25,14 @@ LocalGroupList* getLocalGroupList(const wchar_t* pServerNameW)
   LocalGroupList* pList = NULL;
 
   // NetLocalGroupEnum() arg that must persist across multiple calls
-  unsigned long resumeHandle = 0;
+  DWORD_PTR resumeHandle = 0;
 
   NET_API_STATUS status; // NetLocalGroupEnum() result code
 
   do {
     // NetLocalGroupEnum() args
     LPLOCALGROUP_INFO_1 pBuffer = NULL;
-    unsigned long entriesReadArg = 0, totalEntriesArg = 0;
+    DWORD entriesReadArg = 0, totalEntriesArg = 0;
     // Note: totalEntriesArg - documentation is totally wacky on this.
 
     status = NetLocalGroupEnum(

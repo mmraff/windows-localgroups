@@ -32,14 +32,14 @@ LGMemberList* getMemberList(
   LGMemberList* pList = NULL;
 
   // NetLocalGroupGetMembers() arg that must persist across multiple calls
-  unsigned long resumeHandle = 0;
+  DWORD_PTR resumeHandle = 0;
 
   NET_API_STATUS status; // Result code from NetLocalGroupGetMembers()
 
   do {
     // NetLocalGroupGetMembers() args
     LPLOCALGROUP_MEMBERS_INFO_2 pBuffer;
-    unsigned long entriesReadArg = 0, totalEntriesArg = 0;
+    DWORD entriesReadArg = 0, totalEntriesArg = 0;
 
     status = NetLocalGroupGetMembers(
       pServerNameW,

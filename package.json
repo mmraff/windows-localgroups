@@ -1,6 +1,6 @@
 {
   "name": "windows-localgroups",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Native addon for Node.js to query Windows LocalGroup API",
   "license": "MIT",
   "author": {
@@ -14,7 +14,9 @@
   "bugs": {
     "url": "https://github.com/mmraff/windows-localgroups/issues"
   },
-  "os": [ "win32" ],
+  "os": [
+    "win32"
+  ],
   "main": "index.js",
   "gypfile": true,
   "dependencies": {
