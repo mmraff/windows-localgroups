@@ -36,7 +36,7 @@ class GrpEnumWorker : public Nan::AsyncWorker {
   public:
     GrpEnumWorker(LGArgsResolver& inArgs)
       : Nan::AsyncWorker(inArgs.GetCallback()), _pSrvNameW(NULL),
-        _pList(NULL), _pSnag(NULL)
+        _pList(NULL), _errCode(0)
     {
       if (inArgs.HasHostName())
       {
@@ -44,42 +44,34 @@ class GrpEnumWorker : public Nan::AsyncWorker {
         try { 
           _pSrvNameW = getWideStrCopy(*(*pName));
         }
-        catch (Snag* pS) {
-          _pSnag = pS;
-          SetErrorMessage("ERROR");
+        catch (WinLGrpsError& er) {
+          _errCode = er.code();
+          SetErrorMessage(er.what());
         }
         delete pName;
       }
     }
 
-    ~GrpEnumWorker()
-    {
-      if (_pSrvNameW) free(_pSrvNameW);
-      if (_pList) delete _pList;
-      if (_pSnag) delete _pSnag;
-    }
+    ~GrpEnumWorker() {}
 
     void Execute()
     {
-      if (_pSnag != NULL) {
-        //fprintf(stderr, "Error was set in constructor, but Execute gets called anyway!?\n");
-        return;
-      }
+      if (_errCode != 0) return;
 
       try { _pList = getLocalGroupList(_pSrvNameW); }
-      catch (Snag* pS)
-      {
-        _pSnag = pS;
-        SetErrorMessage("OUCH");
+      catch (WinLGrpsError& er) {
+        _errCode = er.code();
+        SetErrorMessage(er.what());
       }
+      if (_pSrvNameW) free(_pSrvNameW);
     }
 
     void HandleErrorCallback()
     {
       const unsigned argc = 1;
-      Local<Value> exc = (_pSnag->message() == NULL) ?
-        Nan::ErrnoException(_pSnag->code(), NULL, "Unknown error") :
-        Nan::Error(_pSnag->message());
+      Local<Value> exc = (this->ErrorMessage() == NULL) ?
+        Nan::ErrnoException(_errCode, NULL, "Unknown error") :
+        Nan::Error(this->ErrorMessage());
       Local<Value> argv[argc] = { exc };
       callback->Call(argc, argv);
     }
@@ -97,7 +89,7 @@ class GrpEnumWorker : public Nan::AsyncWorker {
   private:
     wchar_t* _pSrvNameW;
     LocalGroupList* _pList;
-    Snag* _pSnag;
+    unsigned long _errCode;
 };
 
 NAN_METHOD(localGroupsList) {
@@ -114,12 +106,11 @@ NAN_METHOD(localGroupsList) {
   {
     LocalGroupList* pList = NULL;
     try { pList = getLocalGroupList(NULL); }
-    catch (Snag* pSnag)
+    catch (WinLGrpsError& er)
     {
-      Local<Value> exc = (pSnag->message() == NULL) ?
-        Nan::ErrnoException(pSnag->code(), NULL, "Unknown error") :
-        Nan::Error(pSnag->message());
-      delete pSnag;
+      Local<Value> exc = (er.what() == NULL) ?
+        Nan::ErrnoException(er.code(), NULL, "Unknown error") :
+        Nan::Error(er.what());
       return Nan::ThrowError(exc);
     }
 

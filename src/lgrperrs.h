@@ -1,32 +1,37 @@
-#ifndef __LGRPERRS_H__
-#define __LGRPERRS_H__
+#ifndef __LGRPERRS_2_H__
+#define __LGRPERRS_2_H__
 
-class Snag {
+#include <stdexcept>
+
+class WinLGrpsError : public std::exception {
   public:
-    Snag(unsigned long hcode) : _code(hcode) {}
-    ~Snag() {}
-    unsigned long code() { return _code; }
-    virtual const char* message() = 0;
+    WinLGrpsError(unsigned long hcode) noexcept : _code(hcode) {}
+    WinLGrpsError& operator=(const WinLGrpsError& other) noexcept {
+      _code = other._code;
+      return *this;
+    }
+    unsigned long code() const noexcept { return _code; }
+    virtual const char* what() const noexcept { return ""; }
   protected:
     unsigned long _code;
 };
 
-class APISnag : virtual public Snag {
+class APIError : public WinLGrpsError {
   public:
-    APISnag(unsigned long hcode) : Snag(hcode) {}
-    const char* message();
+    APIError(unsigned long hcode) : WinLGrpsError(hcode) {}
+    virtual const char* what() const noexcept;
 };
 
-class SystemSnag : virtual public Snag {
+class SysError : public WinLGrpsError {
   public:
-    SystemSnag(unsigned long hcode) : Snag(hcode) {}
-    const char* message();
+    SysError(unsigned long hcode) : WinLGrpsError(hcode) {}
+    virtual const char* what() const noexcept;
 };
 
-class UsageSnag : virtual public Snag {
+class UsageError : public WinLGrpsError {
   public:
-    UsageSnag(unsigned long hcode) : Snag(hcode) {}
-    const char* message();
+    UsageError(unsigned long hcode) : WinLGrpsError(hcode) {}
+    virtual const char* what() const noexcept;
 };
 
 #endif

@@ -29,7 +29,7 @@ char* getLocalGroupComment(
     (LPBYTE*) &pBuffer
   );
 
-  if (status != NERR_Success) throw new APISnag(status);
+  if (status != NERR_Success) throw APIError(status);
   else
   {
     if (pBuffer && pBuffer->lgrpi1_comment)
@@ -37,9 +37,9 @@ char* getLocalGroupComment(
       try {
         pComment = getMultibyteStrCopy(pBuffer->lgrpi1_comment);
       }
-      catch (Snag* pS) {
+      catch (WinLGrpsError& er) {
         NetApiBufferFree(pBuffer);
-        throw pS;
+        throw er;
       }
     }
 

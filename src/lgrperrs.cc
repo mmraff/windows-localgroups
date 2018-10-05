@@ -3,7 +3,7 @@
 #include <lmerr.h>
 #include "lgrperrs.h"
 
-const char* APISnag::message()
+const char* APIError::what() const noexcept
 {
   switch (_code)
   {
@@ -36,7 +36,7 @@ const char* APISnag::message()
   return NULL;
 }
 
-const char* SystemSnag::message()
+const char* SysError::what() const noexcept
 {
   switch (_code)
   {
@@ -48,7 +48,7 @@ const char* SystemSnag::message()
   return NULL;
 }
 
-const char* UsageSnag::message()
+const char* UsageError::what() const noexcept
 {
   switch (_code)
   {

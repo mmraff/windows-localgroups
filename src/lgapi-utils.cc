@@ -22,13 +22,13 @@ wchar_t* getWideStrCopy(const char* pSrc)
   resCode = mbstowcs_s(&sz, NULL, 0, pSrc, 0); // to get required buffer size
   if (resCode != 0)
   {
-    if (resCode == EILSEQ) throw new UsageSnag(EILSEQ);
-    else throw new SystemSnag(resCode);
+    if (resCode == EILSEQ) throw UsageError(EILSEQ);
+    else throw SysError(resCode);
   }
-  if (GROUPNAME_SZ_MAX + 1 < sz) throw new UsageSnag(EMSGSIZE);
+  if (GROUPNAME_SZ_MAX + 1 < sz) throw UsageError(EMSGSIZE);
 
   wchar_t* pDest = (wchar_t*)malloc(sizeof(wchar_t) * sz);
-  if (pDest == NULL) throw new SystemSnag(ENOMEM);
+  if (pDest == NULL) throw SysError(ENOMEM);
 
   // We do all we can to avoid an error in the following, so if something goes
   // wrong, we throw mystery value resCode:
@@ -41,7 +41,7 @@ wchar_t* getWideStrCopy(const char* pSrc)
   );
   if (resCode != 0) {
     free(pDest);
-    throw new SystemSnag(resCode);
+    throw SysError(resCode);
   }
 
   return pDest;
@@ -55,10 +55,10 @@ char* getMultibyteStrCopy(const wchar_t* pSrc)
   assert(pSrc != NULL && "Null passed as src pointer!");
 
   resCode = wcstombs_s(&sz, NULL, 0, pSrc, 0); // to get required buffer size
-  if (resCode != 0) throw new SystemSnag(resCode);
+  if (resCode != 0) throw SysError(resCode);
   
   char* pDest = (char*)malloc(sz);
-  if (pDest == NULL) throw new SystemSnag(ENOMEM);
+  if (pDest == NULL) throw SysError(ENOMEM);
 
   resCode = wcstombs_s(
     &retNum, // [out]
@@ -69,7 +69,7 @@ char* getMultibyteStrCopy(const wchar_t* pSrc)
   );
   if (resCode != 0) {
     free(pDest);
-    throw new SystemSnag(resCode);
+    throw SysError(resCode);
   }
 
   return pDest;

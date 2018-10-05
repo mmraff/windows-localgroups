@@ -40,57 +40,52 @@ class MemberInfoWorker : public Nan::AsyncWorker {
   public:
     MemberInfoWorker(LGArgsResolver& inArgs)
       : Nan::AsyncWorker(inArgs.GetCallback()), _pGrpNameW(NULL), _pSrvNameW(NULL),
-        _pList(NULL), _pSnag(NULL)
+        _pList(NULL), _errCode(0)
     {
       Nan::Utf8String* pName = new Nan::Utf8String(inArgs.GetGroupName());
       try { _pGrpNameW = getWideStrCopy(*(*pName)); }
-      catch (Snag* pS) {
-        _pSnag = pS;
-        SetErrorMessage("ERROR");
+      catch (WinLGrpsError& er) {
+        _errCode = er.code();
+        SetErrorMessage(er.what());
       }
       delete pName;
-      if (_pSnag) return;
+      if (_errCode) return;
 
       if (inArgs.HasHostName())
       {
         pName = new Nan::Utf8String(inArgs.GetHostName());
         try { _pSrvNameW = getWideStrCopy(*(*pName)); }
-        catch (Snag* pS) {
-          _pSnag = pS;
-          SetErrorMessage("ERROR");
+        catch (WinLGrpsError& er) {
+          _errCode = er.code();
+          SetErrorMessage(er.what());
         }
         delete pName;
-        if (_pSnag) {
+        if (_errCode) {
           free(_pGrpNameW); _pGrpNameW = NULL;
         }
       }
     }
 
-    ~MemberInfoWorker()
-    {
-      if (_pGrpNameW) free(_pGrpNameW);
-      if (_pSrvNameW) free(_pSrvNameW);
-      if (_pList) delete _pList;
-      if (_pSnag) delete _pSnag;
-    }
+    ~MemberInfoWorker() {}
 
     void Execute() {
-      if (_pSnag != NULL) return;
+      if (_errCode != 0) return;
 
       try { _pList = getMemberList(_pGrpNameW, _pSrvNameW); }
-      catch (Snag* pS)
-      {
-        _pSnag = pS;
-        SetErrorMessage("ERROR");
+      catch (WinLGrpsError& er) {
+        _errCode = er.code();
+        SetErrorMessage(er.what());
       }
+      free(_pGrpNameW);
+      if (_pSrvNameW) free(_pSrvNameW);
     }
 
     void HandleErrorCallback()
     {
       const unsigned argc = 1;
-      Local<Value> exc = (_pSnag->message() == NULL) ?
-        Nan::ErrnoException(_pSnag->code(), NULL, "Unknown error") :
-        Nan::Error(_pSnag->message());
+      Local<Value> exc = (this->ErrorMessage() == NULL) ?
+        Nan::ErrnoException(_errCode, NULL, "Unknown error") :
+        Nan::Error(this->ErrorMessage());
       Local<Value> argv[argc] = { exc };
       callback->Call(argc, argv);
     }
@@ -109,7 +104,7 @@ class MemberInfoWorker : public Nan::AsyncWorker {
     wchar_t* _pGrpNameW;
     wchar_t* _pSrvNameW;
     LGMemberList* _pList;
-    Snag* _pSnag;
+    unsigned long _errCode;
 };
 
 NAN_METHOD(localGroupMembers) {
@@ -125,34 +120,32 @@ NAN_METHOD(localGroupMembers) {
   else
   {
     wchar_t* pGrpNameW = NULL;
+    Local<Value> exc = Nan::Null();
     try {
       pGrpNameW = getWideStrCopy(*(Nan::Utf8String(args.GetGroupName())));
     }
-    catch (Snag* pS)
+    catch (WinLGrpsError& er)
     {
-      Local<Value> err = (pS->message() != NULL) ?
-        Nan::Error(pS->message()) :
-        Nan::ErrnoException(pS->code(), NULL, "Unknown error from getWideStrCopy");
-      delete pS;
-      return Nan::ThrowError(err);
+      exc = (er.what() == NULL) ?
+        Nan::ErrnoException(er.code(), NULL, "Unknown error (ref:A)") :
+        Nan::Error(er.what());
+      return Nan::ThrowError(exc);
     }
 
     LGMemberList* pList = NULL;
-    Local<Value> err = Nan::Null();
     try {
       pList = getMemberList(pGrpNameW, NULL);
       assert(pList != NULL && "getMemberList() returned NULL!");
     }
-    catch (Snag* pS)
+    catch (WinLGrpsError& er)
     {
-      err = (pS->message() != NULL) ?
-        Nan::Error(pS->message()) :
-        Nan::ErrnoException(pS->code(), NULL, "Unknown error from getMemberList");
-      delete pS;
+      exc = (er.what() == NULL) ?
+        Nan::ErrnoException(er.code(), NULL, "Unknown error (ref:B)") :
+        Nan::Error(er.what());
     }
 
     free(pGrpNameW);
-    if (!err->IsNull()) return Nan::ThrowError(err);
+    if (!exc->IsNull()) return Nan::ThrowError(exc);
 
     info.GetReturnValue().Set(transformMemberData(pList));
     delete pList;

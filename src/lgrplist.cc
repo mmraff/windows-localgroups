@@ -27,7 +27,7 @@ void LocalGroupList::Expand(size_t addCount)
   {
     size_t sz = addCount * LocalGroupList::recordSz;
     _pList = (struct LocalGroupInfo*)malloc(sz);
-    if (_pList == NULL) throw new SystemSnag(ENOMEM);
+    if (_pList == NULL) throw SysError(ENOMEM);
 
     memset(_pList, NULL, sz);
   }
@@ -36,7 +36,7 @@ void LocalGroupList::Expand(size_t addCount)
     size_t diffSize = addCount * LocalGroupList::recordSz;
     size_t newSize = (_count + addCount) * LocalGroupList::recordSz;
     struct LocalGroupInfo* p = (struct LocalGroupInfo*)realloc(_pList, newSize);
-    if (p == NULL) throw new SystemSnag(ENOMEM);
+    if (p == NULL) throw SysError(ENOMEM);
 
     _pList = p;
     memset(_pList + _count, NULL, diffSize);

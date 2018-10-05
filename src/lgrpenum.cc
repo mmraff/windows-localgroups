@@ -48,7 +48,7 @@ LocalGroupList* getLocalGroupList(const wchar_t* pServerNameW)
     if (status != NERR_Success && status != ERROR_MORE_DATA)
     {
       if (pList != NULL) delete pList;
-      throw new APISnag(status);
+      throw APIError(status);
     }
 
     if (pList == NULL) pList = new LocalGroupList();

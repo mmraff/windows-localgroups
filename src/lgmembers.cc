@@ -35,6 +35,7 @@ LGMemberList* getMemberList(
   DWORD_PTR resumeHandle = 0;
 
   NET_API_STATUS status; // Result code from NetLocalGroupGetMembers()
+  unsigned long err = 0;
 
   do {
     // NetLocalGroupGetMembers() args
@@ -55,7 +56,7 @@ LGMemberList* getMemberList(
     if (status != NERR_Success && status != ERROR_MORE_DATA)
     {
       if (pList != NULL) delete pList;
-      throw new APISnag(status);
+      throw APIError(status);
     }
 
     if (pList == NULL) pList = new LGMemberList();
@@ -73,7 +74,6 @@ LGMemberList* getMemberList(
     }
 
     LPLOCALGROUP_MEMBERS_INFO_2 pInEntry = pBuffer; // To index into the inbound list
-    Snag* pSnag = NULL;
     unsigned long i;
 
     for (i = 0; i < entriesReadArg; i++, pInEntry++)
@@ -81,9 +81,10 @@ LGMemberList* getMemberList(
       wchar_t* pSidW = NULL;
       if (!ConvertSidToStringSid(pInEntry->lgrmi2_sid, &pSidW))
       {
-        unsigned long err = GetLastError();
-        pSnag = new APISnag(err);
-        break;
+        err = GetLastError();
+        delete pList;
+        NetApiBufferFree(pBuffer);
+        throw APIError(err);
       }
 
       // FOR REFERENCE: SID_NAME_USE enum defined in winnt.h
@@ -106,18 +107,15 @@ LGMemberList* getMemberList(
 
       if (LocalFree(pSidW) != NULL)
       {
-        pSnag = new SystemSnag(GetLastError());
-        break;
+        err = GetLastError();
+        delete pList;
+        NetApiBufferFree(pBuffer);
+        throw SysError(err);
       }
     }
 
     NetApiBufferFree(pBuffer);
 
-    if (pSnag)
-    {
-      delete pList;
-      throw pSnag;
-    }
   } while (status == ERROR_MORE_DATA);
 
   return pList;

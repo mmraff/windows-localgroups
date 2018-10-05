@@ -28,7 +28,7 @@ void LGMemberList::Expand(size_t addCount)
   {
     size_t sz = addCount * LGMemberList::recordSz;
     _pList = (struct LocGrpMemberInfo*)malloc(sz);
-    if (_pList == NULL) throw new SystemSnag(ENOMEM);
+    if (_pList == NULL) throw SysError(ENOMEM);
 
     memset(_pList, NULL, sz);
   }
@@ -37,7 +37,7 @@ void LGMemberList::Expand(size_t addCount)
     size_t diffSize = addCount * LGMemberList::recordSz;
     size_t newSize = (_count + addCount) * LGMemberList::recordSz;
     struct LocGrpMemberInfo* p = (struct LocGrpMemberInfo*)realloc(_pList, newSize);
-    if (p == NULL) throw new SystemSnag(ENOMEM);
+    if (p == NULL) throw SysError(ENOMEM);
 
     _pList = p;
     memset(_pList + _count, NULL, diffSize);
